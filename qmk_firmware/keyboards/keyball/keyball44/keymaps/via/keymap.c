@@ -70,22 +70,27 @@ void oledkit_render_info_user(void) {
 }
 #endif
 
-// AML: keep layer 1 for ordinary keys; only Lang 2 exits immediately.
+// AML: keep layer 1 for ordinary keys; Lang 1 and Lang 2 exit immediately.
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
 static bool keyball_is_lang2(uint16_t keycode) {
     // Remap may assign a plain Lang2 or the Ctrl/Lang2 mod-tap keys.
     return keycode == KC_LNG2 || keycode == LCTL_T(KC_LNG2) || keycode == RCTL_T(KC_LNG2);
 }
 
+static bool keyball_is_lang1(uint16_t keycode) {
+    // The default keymap uses a layer-tap Lang1 key (LT(3, KC_LNG1)).
+    return keycode == KC_LNG1 || keycode == LT(3, KC_LNG1);
+}
+
 bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
     (void)record;
     // Do not turn ordinary typing on layer 0 into mouse-key activity.
-    return !keyball_is_lang2(keycode) && layer_state_is(AUTO_MOUSE_DEFAULT_LAYER);
+    return !keyball_is_lang2(keycode) && !keyball_is_lang1(keycode) && layer_state_is(AUTO_MOUSE_DEFAULT_LAYER);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // QMK skips the mouse-key hook for mod-tap holds; handle Lang2 here.
-    if (record->event.pressed && keyball_is_lang2(keycode)) {
+    // Handle both language keys explicitly, including their tap/hold variants.
+    if (record->event.pressed && (keyball_is_lang2(keycode) || keyball_is_lang1(keycode))) {
         auto_mouse_reset_trigger(true);
     }
     return true;

@@ -69,3 +69,13 @@ void oledkit_render_info_user(void) {
     keyball_oled_render_layerinfo();
 }
 #endif
+
+// Remap/VIA: do not cancel automatic mouse layer 1 when Space is pressed.
+// This allows a Space assigned to the mouse layer (e.g. the / position)
+// to keep that layer active while held, then restart its inactivity timer.
+#ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
+bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
+    (void)record;
+    return layer_state_is(AUTO_MOUSE_DEFAULT_LAYER) && keycode == KC_SPC;
+}
+#endif

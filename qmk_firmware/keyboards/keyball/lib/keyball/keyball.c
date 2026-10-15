@@ -584,8 +584,6 @@ void keyboard_post_init_kb(void) {
         keyball_set_scroll_div(c.sdiv);
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
         set_auto_mouse_enable(c.amle);
-        // The original 5-bit value can only represent 50..1600 ms.
-        // Combine it with the extension bits without moving legacy fields.
         const uint16_t amlto_units = c.amlto | ((uint16_t)c.amlto_hi << 5);
         set_auto_mouse_timeout(amlto_units == 0 ? AUTO_MOUSE_TIME : (amlto_units + 1) * AML_TIMEOUT_QU);
 #endif

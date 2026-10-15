@@ -126,10 +126,15 @@ typedef union {
         uint8_t sdiv : 3;  // scroll divider
 #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
         uint8_t amle : 1;  // automatic mouse layer enabled
-        uint16_t amlto : 5; // automatic mouse layer timeout
+        uint16_t amlto : 5; // automatic mouse layer timeout: low 5 bits
 #endif
 #if KEYBALL_SCROLLSNAP_ENABLE == 2
         uint8_t ssnap : 2; // scroll snap mode
+#endif
+#ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
+        // Keep this after the existing fields for EEPROM layout compatibility.
+        // 7 bits support the 100..5000 ms range in 50 ms increments.
+        uint8_t amlto_hi : 2; // upper 2 bits of (timeout / 50 - 1)
 #endif
     };
 } keyball_config_t;

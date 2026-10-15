@@ -70,10 +70,24 @@ void oledkit_render_info_user(void) {
 }
 #endif
 
-// Keep the auto mouse layer active for ordinary keys.
-// KC_LNG2 is the only key that may cancel it.
-#ifdef AUTO_MOUSE_ENABLE
+// AML: keep layer 1 for ordinary keys; only Lang 2 exits immediately.
+#ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
+static bool keyball_is_lang2(uint16_t keycode) {
+    // Remap may assign a plain Lang2 or the Ctrl/Lang2 mod-tap keys.
+    return keycode == KC_LNG2 || keycode == LCTL_T(KC_LNG2) || keycode == RCTL_T(KC_LNG2);
+}
+
 bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
-    return keycode != KC_LNG2;
+    (void)record;
+    // Do not turn ordinary typing on layer 0 into mouse-key activity.
+    return !keyball_is_lang2(keycode) && layer_state_is(AUTO_MOUSE_DEFAULT_LAYER);
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // QMK skips the mouse-key hook for mod-tap holds; handle Lang2 here.
+    if (record->event.pressed && keyball_is_lang2(keycode)) {
+        auto_mouse_reset_trigger(true);
+    }
+    return true;
 }
 #endif
